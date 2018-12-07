@@ -1,0 +1,340 @@
+// Calibration Pipeline.txt
+//
+// ImageJ image calibration pipeline macro; uses Astronomy plugin package
+//
+// F. Hessman, 2010-APR-15
+
+requires("1.34m");
+getDateAndTime(year,month,dow,day,h,m,s,msec);
+t = ""+year+"-"+month+"-"+day+"T"+h+":"+m+":"+s;
+print("\n-------------------- "+t+" --------------------");
+print ("Calibration Pipeline:");
+
+// ----- GET PREFERENCES
+
+biaskey = "IMAGETYP";
+darkkey = "IMAGETYP";
+flatkey = "IMAGETYP";
+objkey = "OBJECT";
+
+biasval = "Bias Frame";
+darkval = "Dark Frame";
+flatval = "Flat Field";
+objval = "my object";
+
+biascorr = false;
+darkcorr = false;
+flatcorr = false;
+objcorr = false;
+
+print("     * getting preferences ...");
+biaskey = call("ij.Prefs.get","ccd.biaskey",biaskey);
+darkkey = call("ij.Prefs.get","ccd.darkkey",flatkey);
+flatkey = call("ij.Prefs.get","ccd.flatkey",flatkey);
+objkey = call("ij.Prefs.get","ccd.objkey",objkey);
+
+biasval = call("ij.Prefs.get","ccd.biasval",biasval);
+darkval = call("ij.Prefs.get","ccd.darkval",darkval);
+flatval = call("ij.Prefs.get","ccd.flatval",flatval);
+objval = call("ij.Prefs.get","ccd.objval",objval);
+
+biasimage = call("ij.Prefs.get","ccd.biasimage","BIAS.fits");
+darkimage = call("ij.Prefs.get","ccd.darkimage","DARK.fits");
+flatimage = call("ij.Prefs.get","ccd.flatimage","FLATFIELD.fits");
+
+biasword = call("ij.Prefs.get","ccd.biasimage","BIAS");
+darkword = call("ij.Prefs.get","ccd.darkimage","DARK");
+flatword = call("ij.Prefs.get","ccd.flatimage","FLAT");
+objword = call("ij.Prefs.get","ccd.objword","FOCUS");
+
+// (compatibility with old ImageJ preferences!)
+correct = call("ij.Prefs.get","ccd.biascorr","false");
+if (correct == "true") biascorr = true;
+correct = call("ij.Prefs.get","ccd.darkcorr","false");
+if (correct == "true") darkcorr = true;
+correct = call("ij.Prefs.get","ccd.flatcorr","false");
+if (correct == "true") flatcorr = true;
+correct = call("ij.Prefs.get","ccd.objcorr","false");
+if (correct == "true") objcorr = true;
+
+// --- GET DIRECTORY CONTAINING IMAGES
+
+path = File.openDialog("Select a file in the directory containing your images.");
+dir = File.getParent(path)+File.separator;
+list = getFileList(dir);
+print("   * "+dir+" contains "+list.length+" files.");
+
+// --- FIND FITS IMAGES
+
+function isFITS(filename) {
+	if (endsWith(filename,".fits")) return 1;
+	if (endsWith(filename,".fit")) return 1;
+	if (endsWith(filename,".FIT")) return 1;
+	if (endsWith(filename,".FTS")) return 1;
+	return 0;
+}
+
+nfits = 0;
+for (i=0; i<list.length; i++) {
+	if (isFITS(list[i])) nfits++;
+}
+imagelist = newArray(nfits);
+n=0;
+for (i=0; i<list.length; i++) {
+	if (isFITS(list[i])) {
+		imagelist[n]=list[i];
+		n++;
+	}
+}
+print ("   * ... of which "+nfits+" are FITS files");
+
+//  --- ASK FOR PIPELINE INFO
+
+Dialog.create("Calibation Pipeline");
+Dialog.addMessage("Make sure you have set the calibration parameters");
+Dialog.addMessage(" ");
+
+Dialog.addMessage("BIAS IMAGES");
+Dialog.addCheckbox("Identify BIAS by FITS header",biascorr);
+Dialog.addString("Bias KEYWORD:",biaskey);
+Dialog.addString("Bias keyword value:",biasval);
+Dialog.addCheckbox("Identify BIAS by file name",biascorr);
+Dialog.addString("Bias image filename contains",biasword);
+Dialog.addMessage(" ");
+
+Dialog.addMessage("DARK-CURRENT IMAGES");
+Dialog.addCheckbox("Identify DARK by FITS header",darkcorr);
+Dialog.addString("Dark KEYWORD:",darkkey);
+Dialog.addString("Dark keyword value:",darkval);
+Dialog.addCheckbox("Idendify DARK by file name",darkcorr);
+Dialog.addString("Dark image filename contains",darkword);
+Dialog.addMessage(" ");
+
+Dialog.addMessage("FLATFIELD IMAGES");
+Dialog.addCheckbox("Identify FLAT by FITS header",flatcorr);
+Dialog.addString("Flat KEYWORD:",flatkey);
+Dialog.addString("Flat keyword value:",flatval);
+Dialog.addCheckbox("Identify FLAT by file name",flatcorr);
+Dialog.addString("Flat image filename contains",flatword);
+
+Dialog.addMessage("OBJECT IMAGES");
+Dialog.addCheckbox("Identify OBJECT by FITS header",objcorr);
+Dialog.addString("Object KEYWORD:",objkey);
+Dialog.addString("Object keyword value:",objval);
+Dialog.addCheckbox("Identify FLAT by file name",objcorr);
+Dialog.addString("Flat image filename contains",objword);
+
+Dialog.show();
+biasfits = Dialog.getCheckbox();
+biaskey = Dialog.getString();
+biasval = Dialog.getString();
+biasstr = Dialog.getCheckbox();
+biasword = Dialog.getString();
+
+darkfits = Dialog.getCheckbox();
+darkkey = Dialog.getString();
+darkval = Dialog.getString();
+darkstr = Dialog.getCheckbox();
+darkword = Dialog.getString();
+
+flatfits = Dialog.getCheckbox();
+flatkey = Dialog.getString();
+flatval = Dialog.getString();
+flatstr = Dialog.getCheckbox();
+flatword = Dialog.getString();
+
+flatfits = Dialog.getCheckbox();
+flatkey = Dialog.getString();
+flatval = Dialog.getString();
+flatstr = Dialog.getCheckbox();
+flatword = Dialog.getString();
+
+if (!biascorr && !darkcorr && !flatcorr && !objcorr) {
+	exit("ABORT: Nothing to do.....!");
+}
+
+// --- IDENTIFY IMAGE TYPES
+
+setBatchMode(true);
+typelist = newArray(nfits);
+filterlist = newArray(12);
+nfilters = 0;
+
+for (n=0; n<nfits; n++) {
+	open(dir+imagelist[n]);
+	typelist[n] = "OBJECT";
+	ok = false;
+	if (biasfits) {		// LOOK FOR FITS BIAS KEYWORD
+		b = call("astroj.FitsJ.getCardValueFromImage",biaskey,"");
+		if (b == biasval) {
+			typelist[n] = "BIAS";
+			ok = true;
+		}
+	}
+	if (!ok && biasstr) {		// LOOK FOR BIAS FILENAME
+		i = indexOf(imagelist[n],biasword);
+		if (i >=0) {
+			typelist[n] = "BIAS";
+			ok = true;
+		}
+	}
+
+	if (!ok && darkfits) {		// LOOK FOR FITS DARK KEYWORD
+		d = call("astroj.FitsJ.getCardValueFromImage",darkkey,"");
+		if (d == darkval) {
+			typelist[n] = "DARK";
+			ok = true;
+			doDarks = true;
+		}
+	}
+	if (!ok && darkstr) {		// LOOK FOR DARK FILENAME
+		i = indexOf(imagelist[n],darkword);
+		if (i >=0) {
+			typelist[n] = "DARK";
+			ok = true;
+		}
+	}
+
+	if (!ok && flatfits) {		// LOOK FOR FITS FLAT KEYWORD
+		f = call("astroj.FitsJ.getCardValueFromImage",flatkey,"");
+		if (f == flatval) {
+			f = call("astroj.FitsJ.getCardValueFromImage","FILTER","");
+			filt = -1;
+			for (k=0; k < nfilters; k++) {
+				if (f == filterlist[k]) filt=k;
+			}
+			if (filt == -1) {
+				filterlist[nfilters]=f;
+				filt = nfilters;
+				nfilters++;
+				print ("   * Adding filter #"+nfilters+" ["+f+"]");
+			}
+			typelist[n] = "FLAT-"+filterlist[filt];
+			ok = true;
+		}
+	}
+	if (!ok && flatstr) {			// LOOK FOR FLAT FILENAME
+		i = indexOf(imagelist[n],flatword);
+		if (i >=0) {
+			f = call("astroj.FitsJ.getCardValueFromImage","FILTER","");
+			filt = -1;
+			for (k=0; k < nfilters; k++) {
+				if (f == filterlist[k]) filt=k;
+			}
+			if (filt == -1) {
+				filterlist[nfilters]=f;
+				filt = nfilters;
+				nfilters++;
+				print ("   * Adding filter #"+nfilters+" ["+f+"]");
+			}
+			typelist[n] = "FLAT-"+filterlist[filt];
+			ok = true;
+		}
+	}
+	print ("   * Image #"+n+" : "+imagelist[n]+" is of type \""+typelist[n]+"\"");
+	close();
+}
+setBatchMode(false);
+print ("   * Following filters were found : ");
+for (l=0; l < nfilters; l++) {
+	print ("   *     filter["+l+"]="+filterlist[l]);
+}
+
+// --- CREATE CALIBRATION DIRECTORY
+
+calibDir = dir+"calib"+File.separator;
+if (! File.exists(calibDir)) {
+	print ("   * Creating calib directory "+calibDir);
+	i = File.makeDirectory(calibDir);
+} else {
+	print ("   * Calib directory already exists : "+calibDir);
+}
+
+// --- BIAS REDUCTION
+
+if (biascorr) {
+	biasDir = dir+"biases"+File.separator;
+	if (File.exists(biasDir)) {
+		testlist = getFileList(biasDir);
+		if (testlist.length > 0) {
+			print("   * Biases directory "+biasDir+" already exists and has "+testlist.length+" images.");
+		}
+	} else {
+		print ("   * Creating bias directory "+biasDir);
+		File.makeDirectory(biasDir);
+	}
+	for (n=0; n < nfits; n++) {
+		if (typelist[n] == 'BIAS') {
+			if (! File.rename(dir+imagelist[n],biasDir+imagelist[n])) {
+				exit("ABORT: Cannot move bias image "+imagelist[n]);
+			}
+		}
+	}
+	run ("Image Sequence...","open="+biasDir);
+	print ("   * Invoking master bias creation macro...");
+	run ("Create Master Bias Image");
+	biasimage = call("ij.Prefs.get","ccd.biasimage",biasimage);
+	print ("   * Saving master bias image to "+calibDir+biasimage);
+	saveAs ("FITS", calibDir+biasimage);
+}
+
+// --- DARK REDUCTION
+
+if (darkcorr) {
+	darkDir = dir+"darks"+File.separator;
+	if (File.exists(darkDir)) {
+		testlist = getFileList(darkDir);
+		if (testlist.length > 0) {
+			print("   * Darks directory "+darkDir+" already exists and has "+testlist.length+" images.");
+		}
+	} else {
+		print ("   * Creating darks directory "+darkDir);
+		File.makeDirectory(darkDir);
+	}
+	for (n=0; n < nfits; n++) {
+		if (typelist[n] == 'DARK') {
+			if (! File.rename(dir+imagelist[n],darkDir+imagelist[n])) {
+				exit("ABORT: Cannot move dark image "+imagelist[n]);
+			}
+		}
+	}
+	run ("Image Sequence...","open="+darkDir);
+	print ("   * Invoking master dark creation macro...");
+	run ("Create Master Dark Image");
+	darkimage = call("ij.Prefs.get","ccd.darkimage",darkimage);
+	print ("   * Saving master dark image to "+calibDir+darkimage);
+	saveAs ("FITS", calibDir+darkimage);
+}
+
+// --- FLAT REDUCTION
+
+if (flatcorr) {
+	for (f=0; f < nfilters; f++) {
+		filter = "FLAT-"+filterlist[f];
+		call ("ij.Prefs.set","ccd.flatimage",filter+".fits");
+
+		flatDir = dir+"flats-"+filterlist[f]+File.separator;
+		if (File.exists(flatDir)) {
+			testlist = getFileList(darkDir);
+			if (testlist.length > 0) {
+				print("   * Flatfield directory "+flatDir+" already exists and has "+testlist.length+" images.");
+			}
+		} else {
+			print ("   * Creating flatfield directory "+flatDir);
+			File.makeDirectory(flatDir);
+		}
+		for (n=0; n < nfits; n++) {
+			if (typelist[n] == filter) {
+				if (! File.rename(dir+imagelist[n],flatDir+imagelist[n])) {
+					exit("ABORT: Cannot move flatfield image "+imagelist[n]);
+				}
+			}
+		}
+		run ("Image Sequence...","open="+flatDir);
+		print ("   * Invoking master flatfield creation macro...");
+		run ("Create Master Flatfield Image");
+		print ("   * Saving master flatfield image for filter "+filterlist[f]+" to "+flatDir+flatimage);
+		saveAs ("FITS", calibDir+flatimage);
+	}
+}
+

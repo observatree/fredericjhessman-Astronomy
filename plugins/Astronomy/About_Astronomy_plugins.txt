@@ -1,0 +1,12 @@
+// About_Astronomy_plugins.txt
+
+Dialog.create("About Astronomy plugins");
+Dialog.addMessage("Goettingen ImageJ Astronomy Plugins");
+Dialog.addMessage("Version 2017-MAY-01");
+Dialog.addMessage("(with lots of help and ideas from K. Collins/Univ. Louisville");
+Dialog.addMessage("Contact:");
+Dialog.addMessage("Frederic V. Hessman");
+Dialog.addMessage("Institut fuer Astrophysik");
+Dialog.addMessage("Georg-August-Universitaet Goettingen");
+Dialog.addMessage("Fr.-Hund-Platz 1, 37077 Goettingen");
+Dialog.show();

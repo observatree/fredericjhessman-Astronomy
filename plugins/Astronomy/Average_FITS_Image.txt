@@ -1,0 +1,20 @@
+// Average_FITS_Image.txt
+//
+// FVH (2009-05-05)
+
+ns = nSlices();
+if (ns <= 1) exit("ERROR: Average FITS Image only works with a stack!");
+
+name = "AVERAGE FITS IMAGE";
+title = getTitle();
+setSlice(1);
+label1 = getInfo("slice.label");
+setSlice(ns);
+labeln = getInfo("slice.label");
+
+run("Z Project...", "projection=[Average Intensity]");
+run("Enhance Contrast", "saturated=0.5");
+rename(name);
+
+run("Copy FITS Header", "from=["+title+"] to=["+name+"] history=[Average of "+ns+" images from the stack "+title+":]");
+run("Write FITS Header", "image=["+name+"] type=[HISTORY] comment=[... from "+label1+" to "+labeln+"]");

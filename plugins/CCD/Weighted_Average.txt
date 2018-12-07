@@ -1,0 +1,68 @@
+// Weighted_Average.txt
+//
+// FVH (2012-05-11)
+
+getDateAndTime(year,month,dow,day,h,m,s,msec);
+t = ""+year+"-"+month+"-"+day+"T"+h+":"+m+":"+s;
+
+// ----- IS THERE A STACK READY?
+
+ns = nSlices();
+if (ns <= 1) abort ("Weighted Average only works with a stack!");
+title = getTitle();
+
+// ----- START LOGGING
+
+print("\n-------------------- "+t+" --------------------");
+setSlice(1);
+label1 = getInfo("slice.label");
+getStatistics(area,mean,min,max,std);
+std0 = std;
+setSlice(ns);
+labeln = getInfo("slice.label");
+getStatistics(area,mean,min,max,std);
+std0 = 0.5*(std+std0);
+
+// ----- LIST IMAGES
+
+wgt = newArray(ns);
+print("     * averaging weights for "+title+" :");
+sum = 0.0;
+for (i=1; i <= ns; i++) {
+	setSlice(i);
+	getStatistics(area,mean,min,max,std);
+	wgt[i-1] = (std0*std0)/(std*std);
+	sum += wgt[i-1];
+	info = getInfo("slice.label");
+	print("          "+i+" : wgt("+info+")="+wgt[i-1]+" ("+std+")");
+}
+
+// ----- CREATE WEIGHTED AVERAGE
+
+run("Duplicate...", "title=delete-this-averaging-stack duplicate range=[]");
+run("32-bit");
+for (i=1; i <= ns; i++) {
+	setSlice(i);
+	factor = wgt[i-1]/sum;
+	run("Multiply...", "value="+factor+" slice");
+}
+run("Z Project...", "start=1 stop="+ns+" projection=[Sum Slices]");
+run("Enhance Contrast", "saturated=0.5");
+name = "Weighted Average of "+title;
+rename(name);
+
+// ----- COPY FITS HEADER
+
+print("     * copying representative FITS header ...");
+run("Copy FITS Header", "from=["+title+"] to=["+name+"] history=[Copied FITS header from "+label1+"]");
+run("Write FITS Header", "image=["+name+"] type=[HISTORY] comment=[Weighted Average of "+title+" from "+label1+" to "+labeln+"]");
+
+// ----- FINISH
+
+selectImage("delete-this-averaging-stack");
+close();
+print("FINISHED!");
+print("------------------------------------------------------------\n");
+selectWindow("Log");
+
+beep();

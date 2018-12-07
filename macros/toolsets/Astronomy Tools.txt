@@ -1,0 +1,157 @@
+// Astronomy%20Tools.txt		MACROS FOR IMAGEJ ASTRONOMY PLUGINS (Version 2011-DEC-07)
+//
+// Place this file in the {ImageJ-directory}/macros/tools/ directory.
+
+// ---- APERTURE PHOTOMETRY TOOL
+
+var rStar = 5.0;
+// var rSky  = 20;
+macro 'Aperture Photometry Tool - Cf00O00ffCccfo22bbC88fo4477C44fo5544' {
+	getCursorLoc (x,y,z,flags);
+	// makeOval (x-rSky, y-rSky, rSky*2, rSky*2);
+	makeOval (x-rStar, y-rStar, rStar*2, rStar*2);
+	run ("Aperture ");
+}
+macro 'Aperture Photometry Tool Options...' {
+	run ("Set Aperture");
+}
+
+// ---- CLEAR OVERLAY TOOL
+
+macro 'Clear Overlay Tool - Cda1L0b75L2c86L4d97L6ea8L8fb9L74b3Lc7b3Cf00L75b7C431Lc3e0DbeDefDed' {
+	getCursorLoc (x,y,z,flags);
+	makeOval (x-3,y-3,7,7);
+	run ("Clear Overlay","nix");
+}
+
+// ---- MULTIPLE APERTURE TOOL
+
+// Runs when the "Multiple-Aperture Tool" icon is clicked.
+// 
+macro 'Multiple Aperture Photometry Tool - Cf00O0099O8899Cccfo2255oaa55C00fo3333obb33' {
+ 	run ("MultiAperture ");
+}
+macro 'Multiple Aperture Photometry Tool Options...' {
+	run ("Set MultiAperture");
+}
+
+// ---- ASTROMETRY TOOL
+
+macro 'Astrometry Tool - Cccfo22bbC88fo4477C44fo5544Cf00L707fL07f7' {
+	getCursorLoc (x,y,z,flags);
+	makeOval (x-3,y-3,7,7);
+	run ("Get WCS Position");
+}
+// macro 'Astrometry Tool Options...' { run ("Set World Coordinates"); }
+
+// ---- SEEING TOOL
+
+macro 'Seeing Profile Tool - C00fL0f1fL1f4cL4c58L5863L6370L7080L8093L93a8La8bcLbcefLefff' {
+	getCursorLoc (x,y,z,flags);
+	makeOval (x-3,y-3,15,15);
+	run ("Seeing Profile");
+}
+
+// ---- BRIGHTNESS/CONTRAST TOOL
+
+// macro "Adjust Brightness and Contrast Tool - C037D04D05D06D07D08D09D0aD0bD0cD14D18D1cD24D28D2cD34D38D3cD45D46D47D49D4aD4bD6bD6cD76D77D78D79D7aD84D85Da6Da7Da8Da9DaaDb5DbbDc4DccDd4DdcDe5DebDf6Dfa" {
+macro "Adjust Brightness and Contrast Tool - C000O3399H84b5c6c8aa9b8c8400L7073Le1b4Lf7c7LeebbL8f8cL1e4bL0838L1144" {
+	run("Brightness/Contrast...");
+}
+
+// ---- LUT TOOL
+
+var luts = getLutMenu();
+var lCmds = newMenu("LUT Menu Tool", luts);
+// C037T0b11LT6b09UTcb09T
+macro "LUT Menu Tool - Cf00F12f2Cfd2F14f2C0f0F16f2C00fF18f2C73cF1af2" {
+	cmd = getArgument();
+	if (cmd!="-") run(cmd);
+}
+function getLutMenu() {
+	list = getLutList();
+	menu = newArray(16+list.length);
+	menu[0] = "Invert LUT";
+	menu[1] = "Grays";
+	menu[2] = "-";
+	menu[3] = "Blue";
+	menu[4] = "Cyan";
+	menu[5] = "Green";
+	menu[6] = "Magenta";
+	menu[7] = "Red";
+	menu[8] = "Yellow";
+	menu[9] = "-";
+	menu[10] = "Fire";
+	menu[11] = "Ice";
+	menu[12] = "Spectrum";
+	menu[13] = "3-3-2 RGB";
+	menu[14] = "Red/Green";
+	menu[15] = "-";
+	for (i=0; i<list.length; i++)
+		menu[i+16] = list[i];
+	return menu;
+}
+function getLutList() {
+	lutdir = getDirectory("startup")+"luts"+File.separator;
+	list = newArray("No LUTs in /ImageJ/luts");
+	if (!File.exists(lutdir)) return list;
+	rawlist = getFileList(lutdir);
+	if (rawlist.length==0) return list;
+	count = 0;
+	for (i=0; i< rawlist.length; i++)
+		if (endsWith(rawlist[i], ".lut")) count++;
+	if (count==0) return list;
+	list = newArray(count);
+	index = 0;
+	for (i=0; i< rawlist.length; i++) {
+		if (endsWith(rawlist[i], ".lut"))
+		list[index++] = substring(rawlist[i], 0, lengthOf(rawlist[i])-4);
+	}
+	return list;
+}
+
+// ---- STACK TOOL
+
+var sMenu = newMenu("Stack Menu Tool",newArray(
+	"Delete slice",
+	"Set slice",
+	"-",
+	"Align stack",
+	"Average of stack",
+	"Median of stack",
+	"Normalize stack",
+	"-",
+	"Start animation",
+	"Stop",
+	"-",
+	"Images to stack",
+	"Stack to images"
+	));
+macro "Stack Menu Tool - C333F8088C666F6288C999F4488CcccF2688CfffF0888C555D4cD19" {
+	cmd = getArgument();
+	if (cmd == "Delete slice") run("Delete Slice");
+	else if (cmd == "Set slice") run("Set Slice...");
+	else if (cmd == "<<") setSlice(1);
+	else if (cmd == "<") run("Previous Slice [<]");
+	else if (cmd == ">") run("Next Slice [<]");
+	else if (cmd == ">>") setSlice(nSlices);
+	else if (cmd == "Align stack") run("Align Stack");
+	else if (cmd == "Average of stack") run("Average FITS Image");
+	else if (cmd == "Median of stack") run("Median FITS Image");
+	else if (cmd == "Normalize stack") run("Normalize Stack");
+	else if (cmd == "Start animation") run("Start Animation [\\]");
+	else if (cmd == "Stop") run("Stop Animation");
+	else if (cmd == "Images to stack") run("Images to Stack");
+	else if (cmd == "Stack to images") run("Stack to Images");
+	else if (cmd == "MultiAperture photometry") run ("MultiAperture ");
+}
+
+// IdeenExpo 2009 Temporary stuff
+// var expoMenu = newMenu("IdeenExpo 2009 Menu Tool",newArray("Naechstes Bild holen","Sterne messen","Souvenir ausdrucken","-","Konfiguration"));
+// macro "IdeenExpo 2009 Menu Tool - Ce42F00eeCfffT1c14IT4c14d" {
+//	cmd = getArgument();
+//	if (cmd == "Naechstes Bild holen") runMacro("plugins/IdeenExpo/Naechstes_Bild_holen.txt");
+//	else if (cmd == "Sterne messen") run("Sterne messen");
+//	else if (cmd == "Souvenir ausdrucken") run("Souvenir ausdrucken");
+//	else if (cmd == "Konfiguration") runMacro("plugins/IdeenExpo/Konfiguration_.txt");
+// }
