@@ -1,0 +1,341 @@
+<html>
+<head>
+<title>Astronomy</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Astronomy</b>
+</font>
+<p>
+
+<blockquote>
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Frederic V. Hessman (hessman at Astro.physik.Uni-Goettingen.de)<br>
+<a href="http://www.Astro.physik.Uni-Goettingen.de">Inst. f. Astrophysik</a>,
+Georg-August-Universit&auml;t G&ouml;ttingen
+
+</td></tr>
+
+<tr valign=top><td ><b>Latest Version:</b></td><td >2017-12-04</td></tr>
+
+<tr valign=top><td ><b>Download:</b></td>
+<td>
+<A HREF="http://www.astro.physik.uni-goettingen.de/~hessman/ImageJ/Astronomy/Astronomy.zip">Astronomy.zip</A> (older versions available <A HREF="http://www.astro.physik.uni-goettingen.de/~hessman/ImageJ/Astronomy/archive">here</A>)
+</td>
+</tr>
+
+<tr valign=top><td ><b>Description:</b></td>
+<td>
+<p>
+A collection of astronomical ImageJ plugins which are used in the WebBook <I><A HREF="http://www.astro.physik.uni-goettingen.de/~hessman/ImageJ/Book/index.html">An Introduction to Astronomical Image Processing using ImageJ</A></I> by F.V. Hessman and E. Modrow.   Functionality includes:
+<ul>
+<li>aperture photometry (single and multiple apertures, relative photometry, processing of stacks at fixed and varying aperture positions);</li>
+<li>creation and application of CCD calibrations (overscan, bias, dark, flatfield, cosmic-rays);</li>
+<li>dynamic creation of color images from 8-bit, 16-bit, and floating point grayscale images;</li>
+<li>FITS header support (reading, writing, copying, modifying, reading numerical values from keywords while performing aperture photometry);</li>
+<li>calculation of Julian Date from FITS headers, also during photometric measurements (used for immediate lightcurves);</li>
+<li>plotting of results from a measurement table (e.g. lightcurves) without having to store tables and re-reading into a plotting program;</li>
+<li>alignment and normalization of a stack of images via star measurements;</li>
+<li>very simple World Coordinate System support;</li>
+<li>telescope focussing help (fitting a hyperbola to a set of star width measurements).</li>
+</ul>
+</tr>
+
+<tr valign=top><td><b>Requirements:</b></td>
+<td>
+<ul>
+	<li>
+	The aperture photometry and telescope focus plugins require that you have previously installed the JAMA matrix package (used for fitting various things).
+	If you don't have this package, then you'll get a "Class not found while attempting to run ..." error message.
+	Put the JAMA jar file available <a href="http://math.nist.gov/javanumerics/jama/">here</a> either in your ImageJ <tt>plugins</tt> directory or in the <tt>lib/ext/</tt> directory of your Java compiler.
+	Some ImageJ installations have their own version of the Java Runtime Environment in the ImageJ directory, some use the system's Java installation.
+	Apple's OSX lets you use your own Library directory at <tt>~/Library/Java/Extensions/</tt>.
+	Restart ImageJ and things should work fine.
+</ul>
+</td>
+<tr>
+
+<tr valign=top><td ><b>Documentation (not necessarily up-to-date):</b></td>
+<td>
+<ul>
+	<li>General usage: <I><A HREF="http://www.astro.physik.uni-goettingen.de/~hessman/ImageJ/Book/index.html">An Introduction to Astronomical Image Processing using ImageJ</A></I> by F.V. Hessman and E. Modrow. 
+	<li>Javadocs to <TT><A HREF="http://www.astro.physik.uni-goettingen.de/~hessman/ImageJ/Astronomy/docs/astroj/">astroj</A></TT> class package and <TT><A HREF="http://www.astro.physik.uni-goettingen.de/~hessman/ImageJ/Astronomy/docs/plugins/">Astronomy plugins</A></TT>.</li>
+</td>
+</ul>
+</tr>
+
+<tr valign=top><td ><b>Changes:</b></td>
+<td>
+<ul>
+	<li>2017-12-04: added support for non-standard FITS headers supported by SalsaJ</li>
+	<li>2017-09-13: added support for correction of shutter-flatfield effects in "Process Images"; fixed minor bug in FitsJ; added "Underflow correction"; extended "Fix FITS Header" to provide minimum WCS metadata.</li>
+	<li>2017-05-30: fixed bug in MeasurementTable, changed Brightness/Contrast icon..</li>
+	<li>2015-10-19: fixed bug in FITS header reader (error in calculating JD for some dates)".</li>
+	<li>2014-09-20: fixed linear least square routine used in, e.g., "Find Telescope Focus" and "Align images".</li>
+	<li>2013-08-15: various bug fixes.  Includes alpha-versions of astrometry routines: caveat emptor!</li>
+	<li>2011-12-23: bug fix in MultiAperture which resulted in a measured pixel shift of 1/2 pixel.</li>
+	<li>2011-11-10: mostly bug fixes taken from the <a href="http://www.astro.louisville.edu/software/astroimagej/">Louisville AstroImageJ package</a>, added MultiAperture icon and removed entry in Stack toolset</li>
+	<li>2011-04-06: mostly bug fix for 2011-03-25 version
+		<ul>
+			<li>Fixed mixup with the <tt>Set Aperture</tt> input parameters that caused problems when doing photometry without automatic centering.</li>
+			<li>Added Karen Collins' intelligent sky background algorithm (uses only good parts of sky annulus).</li>
+			<li>Fixed Centroid bug which sometimes prevented automatic centering (K. Collins).</li>
+		</ul>
+	<li>2011-03-25 (also for 1.43 and later):
+		<ul>
+			<li>MeasurementTables are back!  Thanks to Karen Collins, the problems with the ImageJ changes have been overcome.  This makes it possible to have the standard Results windows for standard statistics at the same time as the astronomical results windows.</li>
+			<li>A bug in the photometry object was fixed, which resulted in an offset in the aperture.</li>
+			<li>A bug in the centroid object was fixed, which was using a rectangular rather than a circular aperture.</li>
+			<li>The aperture photometry tool now uses the centers of pixels as a measure of position when the user has turned off the automatic centering.  This was an issue because ImageJ uses whole number positions for lots of functions but also considers the corners rather than the centers of pixels to be those positions.</li>
+		</ul>
+	<li>2010-07-08 (for ImageJ versions 1.43 and later):
+		<ul>
+			<li>No more MeasurementTables: due to internal changes in the way ImageJ handles Results tables, it is no longer possible to create separate MeasurementTables.  The results of aperture photometry measurements now go directly to the standard ImageJ Results table.  Starting with the very newest versions, the results table can be renamed so that it doesn't collide with normal ImageJ measurements.  Hopefully, we will be able to rescue the old functionality with time.</li>
+			<li>Fixed the bug in <TT>Find Telescope Focus</TT> where the table row names weren't updated if there was more than one non-image window open (e.g. the Brightness & Contrast window).</li>
+		</ul>
+	<li>2009-11-17 :
+		<ul>
+			<li>Added the standard LUT and a new astronomical Stack menu to the "Astronomy Tools" toolset: this provides simpler access to the most commonly used astronomical functions (e.g. Z-projection of stacks where the FITS header information is not lost).</li>
+		</ul>
+	<li>2009-05-29 :<br><TT>Find Telescope Focus</TT> defaults to MONET-compatible table if present.</li>
+	<li>2009-05-06 :
+		<ul>
+			<li>The <TT>Astronomy/CCD Calibration</TT> plugin and the <TT>CCD/Process Image</TT> and <TT>CCD/Process Stack</TT> macros have been replaced with a single <TT>CCD/Process Images</TT> plugin.</li>
+			<li>Minor fixes to <TT>Average FITS Image</TT>, <TT>Median FITS Image</TT>, and CCD routines (e.g. better FITS HISTORY entries).</li>
+			<li>Fixed bug in extraction of Julian Date from FITS header.</li>
+			<li>Added <TT>Copy/Read/Write FITS Header</TT> plugins (used to support macros).</li>
+			<li>Added <TT>Graphics/Plot Table Columns</TT> plugin, able to create a simple graph from any table columns.</li>
+			<li>Added <TT>Input-Output/Read Measurement Table</TT> plugin to easily read in any text table.</li>
+		</ul>
+	</li>
+	<li>2008-08-20 : mixed minor corrections plus
+		<ul>
+			<li> fixed bug in <TT>Shift Image</TT> so that it now works for stacks;  note that Shift Image is better than <TT>Image &gt; Translate...</TT>, both because the FITS header is preserved and because integer shifts don't result in interpolation.</li>
+			<li> added <TT>Average FITS Images</TT> for averaging stacks where at least one of the FITS headers is preserved in the final image.</li>
+		</ul>
+	</li>
+	<li>2008-08-07 : mostly corrections
+		<ul>
+			<li> fixed new bug in FitsJ (used to read FITS values, showed up as error in JD calculation);</li>
+			<li> slightly improved CCD macros, including <tt>Process_Image</tt> and <tt>Process_Stack</tt> macros.</li>
+		</ul>
+		<PRE></PRE>
+	</li>
+	<li>2008-08-01 : BIG release!
+		<ul>
+			<li><tt>Align Image</tt> is now based on the information stored in the Aperture ROI's within the overlay canvas (non-standard ImageJ!), so no results tables are needed.  The alignment of images can be done simply by having the same aperture measurements in two images (unfortunately still made in the same number and order!);</li>
+			<li>The aperture ROI's in the overlay canvas can now be deleted individually using the <tt>Clear Overlay</tt> (clicking within an aperture deletes the aperture; clicking outside deletes ALL apertures);</li>
+			<li>FITS-based astrometry cursor;</li>
+			<li>Collection of CCD reduction macros in a separate plugin directory:
+				<ul>
+					<li><tt>Remove Overscan Bias</tt></li>
+					<li><tt>Create Master Bias Image</tt></li>
+					<li><tt>Create Master Dark Image</tt></li>
+					<li><tt>Create Master Flatfield Image</tt></li>
+					<li><tt>gain Calculation</tt></li>
+					<li><tt>RON Calculation</tt></li>
+				</ul>
+			</li>
+			<li><tt>RGB Composer</tt> for very simple conversion of three grayscale images to a color image (see the separate information page <a href="http://www.astro.physik.uni-goettingen.de/~hessman/ImageJ/RGB_Composer/index.html">here</a>).</li>
+			<li>The <tt>Set Aperture</tt> dialogue has been split into two dialogues: a main dialogue with the most important stuff, and a secondary dialogue which one can access if needed (by selecting <tt>Show other configuration</tt> at the bottom of the normal dialogue).</li>
+			<li><tt>Uncalibrate FITS Image</tt> removes the often faulty intensity calibration of a FITS image.</li>
+			<li>Fixed a bug in <tt>Seeing Profile</tt> which makes the plotted profiles look much better.</li>
+		</ul>
+		<PRE></PRE>
+	</li>
+	<li>2008-06-13 : <B>Big update!</B> (requires ImageJ 1.38)
+		<ul>
+			<li>The distribution now consists of a zip file containing
+			<ul>
+				<li><TT>plugins/Astronomy_.jar</TT> (containing the plugin classes and source code);</li>
+				<li><TT>plugins/astroj.jar</TT> (package of various helpful classes - with source code - which can now be easily used by other plugins);</li>
+				<li><TT>macros/toolsets/Astronomy Tools.txt</TT> (ImageJ toolbar toolset).</li>
+			</ul>
+			</li>
+			<li>Multiple aperture measurements can now be made by pressing the <TT>Aperture Photometry Tool</TT> only once.</li>
+			<li>Individual aperture measurements can now be removed by pressing the <TT>Clear Overlay Tool</TT> and then clicking with the mouse within the measurement to be deleted.  Clicking outside any measurement clears the entire overlay, as before.</li>
+			<li>The <TT>Align Images</TT> tools has been added, which uses the new aperture functionality: click one 1 or more stars in the same order to create a set of matching aperture measurements in the overlay in two images:  the plugin gets the measurements directly from the overlay and uses them to align (and optionally normalize) a copy of one of the images.  If you make a mistake while making the measurements, no problem: the clear overlay tool now lets you remove individual measurements.  The next step will be to teach the plugin to handle measurements taken in random order or where not all the measurements match up....</li>
+		</ul>
+	</li>
+<li>2008-02-26 : Bug-fix for CCD_Calibration plugin.</LI>
+<li>2008-02-20 : <B>Major update!</B> (requires ImageJ 1.38)
+<ul>
+<li>The installation of the plugins is much simpler.  The startup macros are now put in a so-called "toolset", so no other installation is necessary other than to download the zip file into the ImageJ home directory and unzip, which installs the Astronomy toolset and the jar file of the Astronomy plugins.</li>
+<li><TT>Aperture Photometry</TT> now has the option of clearing the ROI ("region-of-interest") after a measurement, independent of whether the aperture circles are left in the overlay canvas - this option makes it easier to avoid performing math thereafter only in the ROI rather than in the entire image.</li>
+<li>The FITS header support has been simplified and improved.</li>
+<li>The "World Coordinates" plugin (with toolset button) can read R.A. and Decl. coordinates from FITS images with proper WCS info (e.g. images downloaded from NASA's SkyView portal).  The next update will contain a tool for creating the correct header information by measuring stars of known celestial position.</li>
+<li>The "Find Telescope Focus" plugin has been improved and now supports several different methods of inputting the focus info.</li>
+<li>Also coming in the next version: improved support for saving FITS files with complete headers; support for plotting Measurement Tables.</li>
+</ul>
+</li>
+<li>2007-02-19 : The plugins are now contained within a simple archive file, <TT>Astronomy_.jar</TT>, which needs to sit in the {ImageJ-Home}<TT>/plugins</TT> directory.
+The plugins are installed in various meaningful Plugins sub-menus.
+The aperture photometry setup plugin ("<TT>Set Aperture</TT>") can now be invoked by double-clicking on the "<TT>Aperture Photometry Tool</TT>" icon in the ImageJ toolbar (after appending the contents of the "<TT>Append_to_StartupMacros.txt</TT>" file to {ImageJ-Home}<TT>/macros/StartupMacros.txt</TT>").
+The aperture photometry plugin now calculates the errors of the photometric measurements (the gain and read-out-noise of the detector needs to be input).
+New plugins: <TT>Astrometry</TT> (determination of the platescale and rotation of an image using two stars of known position); and <TT>Normalize Stack</TT> (useful for constructing flatfield calibration images).
+A bug which made the overlays not work in versions of ImageJ earlier than 1.37 was removed.
+</li>
+<li>
+2006-12-14 : fixed widths estimated by aperture measurements to be approximately FWHM (based on empirical calibration of moment-widths and Gaussian FWHM).
+</li>
+</li>
+<li>
+2006-12-13 : changed hectic-looking dynamic display of apertures in MultiAperture_ in last version to static image overlay with output of source brightness on screen from all aperture measurements; added "broom" tool in toolbar to remove overlay elements (see AperturePhotometry.txt for macros to be placed in <TT>${IMAGEJ_DIR}/macros/StartUp.txt</TT>; fixed slight offset of aperture circles (display problem only).
+</li>
+<li>
+2006-12-06 : corrected problem with MultiAperture_ (failed allocation when measuring images rather than stacks); added dynamic display of currently selected apertures.
+</li>
+<li>
+2006-11-29 : improvements in <tt>Image_Shifter</tt> (multiple alignment stars and their photometry by making this class a daughter of <tt>MultiAperture_</tt>); first attempt at tracking moving objects intelligently using <tt>MultiAperture_</tt> (beta version).
+</li>
+<li>
+2006-11-27 : added <tt>Image_Shifter</tt> to do manual image alignment.
+</li>
+<li>
+2006-11-16 : fixed bugs in <tt>FITSUtilities</tt> and <tt>JulianDate</tt> relating to the output of MJD from aperture measurements of FITS images.
+<li>
+2006-11-15 : added <tt>CCD_Calibration</tt> and <tt>Stack_Aligner</tt>.
+</li>
+</li>
+</ul>
+</td>
+</tr>
+
+<!--
+<ul>
+<li>
+<a name="Aperture_">
+<tt>Aperture_</tt> : aperture photometry plugin, including a macro which can put a point-and-click photometric measurements icon into the ImageJ toolbar.
+<br><br>
+<img src="toolbar_Aperture_Photometry_Tool.png" width="400">
+<br><br>
+<img src="Aperture_result.png" width="400">
+<br><br>
+<img src="aperture_overlay.png" width="300">
+<pre></pre>
+</li>
+<li>
+<a name="CCD_Calibration">
+<tt>CCD_Calibration</tt> : a plugin which makes it easy to calibrate raw images and raw image stacks.
+<br><br><img src="CCD_Calibration.tif" width="600">
+<pre></pre>
+</li>
+<li>
+<a name="Clear_Overlay">
+<tt>Clear_Overlay</tt> : a plugin which removes any apertures displayed on the image overlay created by <tt>Aperture_</tt> or <tt>MultiAperture_</tt> or <tt>Stack_Aligner</tt>.  When the overlay clearing tool is installed as a macro, a "broom" icon appears in the ImageJ toolbar.
+<br><br>
+<img src="toolbar_Clear_Overlay_Tool.png" width="400">
+<pre></pre>
+</li>
+<li>
+<a name="Find_Focus">
+<tt>Find_Focus</tt> : a plugin which finds the best focus from a series of images packed into an image stack; the focus value is extracted from the image names, the FITS headers (if present), from values input by hand, or simply from a table of focus-width values (alpha version!); the focus curve is fit with a hyperbola to mimic the transition from normal seeing PSF to a defocused pupil.  Shown here is the simplest mode, where the user types in the focus values.
+<br><br>
+<img src="Find_Focus.png" width="250">
+<img src="Find_Focus_result.png" width="400">
+<pre></pre>
+</li>
+<li>
+<a name="Image_Shifter">
+<tt>Image_Shifter</tt> : shifts images (grayscale &amp; color) by a given amount (e.g. determined by using an <tt>Aperture_</tt> measurement).  Mainly useful for didactic purposes or when one doesn't want to use a stack and <tt>Stack_Aligner</tt>.
+<br><br>
+<img src="Image_Shifter.png" width="300">
+<pre></pre>
+</li>
+<li>
+<a name="MultiAperture_">
+<tt>MultiAperture_</tt> : same as <tt>Aperture_</tt>, but for multiple apertures and with stack support;
+<br><br>
+<img src="MultiAperture_.png" width="400">
+<pre></pre>
+</li>
+<li>
+<a name="Seeing_Profile">
+<tt>Seeing_Profile</tt> : plots the radial profile of a star-like object, measures its FWHM, and can suggest appropriate aperture photometry radii;
+<br><br>
+<img src="Seeing_Profile.png" width="400">
+<pre></pre>
+</li>
+<li>
+<a name="Set_Aperture">
+<tt>Set_Aperture</tt> : for setting <tt>Aperture_</tt> parameters (radii) and measurement output;<br><br><img src="Set_Aperture.png" width="300">
+<pre></pre>
+</li>
+<li>
+<a name="Stack_Aligner">
+<tt>Stack_Aligner</tt> : a simple plugin for aligning, normalizing, and background-subtracting images in a stack.
+<br><br>
+<img src="Stack_Aligner.png" width="400">
+</li>
+</ul>
+</p>
+<p>
+Support classes include:
+<ul>
+<li><tt>Centroid</tt> : finds exact center and moment-widths of star-like images;</li>
+<li><tt>Duration</tt> : parses ISO durations and times;</li>
+<li><tt>FitsJ</tt> (starting with 2008-02-20): reads the FITS header from the image info (single images) or stack title, and returns it as a simple String array; various class methods for manipulating the header and storing it back to where one got it;</li>
+<li><tt>FITSUtilities</tt> (versions up to 2007-02-19): reads the FITS header from the ImageJ image info buffer, places the information in the image Properties object, and returns values of any FITS header keywords present;</li>
+<li><tt>FittedPlane</tt> : fits a plane to a sub-image (can be used, e.g., by <tt>Centroid</tt>);</li>
+<li><tt>GFormat</tt> : C-like g-formatting of floating point numbers (necessary for earlier Java versions);</li>
+<li><tt>IJU</tt> : a growing collection of useful ImageJ functions;</li>
+<li><tt>JulianDate</tt> : converts Julian Date back and forth from dates &amp; times, and ISO dateTimes;</li>
+<li><tt>MeasurementTable</tt> : extends ImageJ's <tt>ResultsTable</tt>;</li>
+<li>
+<a name="OverlayCanvas">
+<tt>OverlayCanvas</tt> : extends ImageJ's <tt>ImageCanvas</tt> by providing an optional overlay consisting of a collection of ROI's which can be displayed on top of an image or stack;</li>
+<li><tt>Photometer</tt> : performs aperture photometry;</li>
+<li><tt>SpringUtilities</tt> : public domain Swing utilities written by Sun (needed by <tt>CCD_Calibration</tt>);</li>
+<li><tt>StringRoi</tt> : a ROI as a simple String (for gurus: the standard ImageJ <TT>TextRoi</TT> doesn't provide a non-interactive API!);</li>
+<li><tt>WCS</tt> : reads world coordinate system info from the FITS header so that celestial positions can be derived from pixel positions.</li>
+</ul>
+<p>
+Includes Java sources and classes.  <tt>Find_Focus</tt> requires the <a href="http://math.nist.gov/javanumerics/jama/">JAMA matrix package</a> and <tt>Centroid</tt> would like to use it via <tt>FittedPlane</tt>.
+</p>
+</td>
+</tr>
+-->
+
+<tr><td><PRE></PRE></td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td>
+<td>
+<p>
+2008-2009: Download <tt>Astronomy.zip</tt> to the ImageJ root directory, unzip into the ROOT directory, NOT into an "Astronomy" directory, and (re)start ImageJ. If your unzipper is not cooperative, copy the files in the created <TT>plugin/</TT> and <TT>macro/toolsets/</TT> directories into the correct ones.
+</p>
+<p>
+2007: Download <tt>Astronomy.zip</tt> to the ImageJ root directory, unzip.
+Append the contents of the <TT>Append_to_StartupMacros.txt</TT> file to <I>{ImageJ-root}</I><TT>/macros/StartupMacros.txt</TT> to get the toolbar icons.  Re-start ImageJ.
+</p>
+<p>
+2006: Download <tt>Astronomy.zip</tt> 
+to the plugins folder, unpack, e.g. in a <tt>(ImageJ_root_directory)/plugins/Astronomy/</tt> folder, and restart ImageJ.
+To have the aperture macro automatically installed in the ImageJ toolbar, put the contents of ApertureTool.txt into the <tt>(ImageJ_root_directory)/macros/StartupMacros.txt</tt> file.
+If you don't have JAMA (place, e.g., in the <tt>(ImageJ_root_directory)/plugins/jars/</tt> directory), you'll have to use the <a href="http://www.astro.physik.uni-goettingen.de/~hessman/ImageJ/Astronomy/archive/Astronomy-2006-05-02.zip">oldest version</a>.
+</p>
+</td>
+</tr>
+
+<tr></tr>
+
+<tr valign=top><td ><b>Coming:</b></td>
+<td>
+<ul>
+	<li>FITS header editor</li>
+	<li>telescope database for deriving astrometric solutions from incomplete headers</li>
+	<li>massive automatic aperture photometry</li>
+	<li>difference imaging using adaptive convolution kernels</li>
+	<li>dynamic plotting (instead of ImageJ's dead plot images)</li>
+	<li>importing VOTable object lists into the overlay canvas</li>
+</ul>
+</td>
+</tr>
+
+</table>
+
+<p><b>|<a href="http://www.astro.physik.uni-goettingen.de/~hessman/ImageJ/">Other Plugins</a> | <a href="http://rsb.info.nih.gov/ij/index.html">ImageJ Home</a> |</b>
+</body>
+</html>
